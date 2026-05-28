@@ -1,0 +1,124 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+:root {
+  --brand-primary: #00793d;
+  --brand-primary-dark: #005c2f;
+  --brand-accent: #10b981;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.35s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+.typing-dot {
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.prose-chat strong {
+  font-weight: 600;
+}
+
+.prose-chat p:last-child {
+  margin-bottom: 0;
+}
+
+/* Landing hero animation */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-slide-up {
+  animation: slide-up 0.7s ease-out forwards;
+}
+
+.anim-delay-1 {
+  animation-delay: 0.15s;
+  opacity: 0;
+}
+
+.anim-delay-2 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.anim-delay-3 {
+  animation-delay: 0.45s;
+  opacity: 0;
+}
+
+/* Safe area for mobile */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
