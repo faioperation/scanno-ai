@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: scanno_postgres_dev
+    restart: always
+    environment:
+      POSTGRES_DB: scanno_db_dev
+      POSTGRES_USER: scanno_user
+      POSTGRES_PASSWORD: scanno_password
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: scanno_redis_dev
+    restart: always
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend+ai/Scanno_auth
+      dockerfile: Dockerfile
+    container_name: scanno_backend_dev
+    volumes:
+      - ./backend+ai/Scanno_auth:/app
+    environment:
+      - DATABASE_URL=sqlite:///./scanno_integrated.db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET_KEY=devsecretjwtkey12345!
+      - ADMIN_EMAIL=admin@scanno.ai
+      - ADMIN_PASSWORD=supersecureadminpass
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: scanno_frontend_dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NEXT_PUBLIC_CAR_DOCTOR_WEBSITE=https://scanno.qa
+      - NEXT_PUBLIC_CAR_DOCTOR_PHONE=+97466532830
+      - NEXT_PUBLIC_CAR_DOCTOR_BOOKING_URL=https://scanno.qa/booking
+      - NEXT_PUBLIC_CURRENCY_SYMBOL=QAR
+    ports:
+      - "3000:3000"
+    command: npm run dev
+
+volumes:
+  pgdata_dev:

@@ -63,6 +63,7 @@ def startup_event():
         r.ping()  
         
         set_redis_client(r)
+        redis_client = r
         
         print("Redis connection established successfully!")
     except Exception as e:

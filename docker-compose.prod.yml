@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: scanno_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_DB: scanno_db
+      POSTGRES_USER: scanno_user
+      POSTGRES_PASSWORD: scanno_password
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scanno_user -d scanno_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: scanno_redis_prod
+    restart: always
+    command: redis-server --requirepass scanno_redis_password
+    volumes:
+      - redisdata_prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "scanno_redis_password", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend+ai/Scanno_auth
+      dockerfile: Dockerfile
+    container_name: scanno_backend_prod
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://scanno_user:scanno_password@postgres:5432/scanno_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=scanno_redis_password
+      - JWT_SECRET_KEY=supersecretjwtkey12345!
+      - ADMIN_EMAIL=admin@scanno.ai
+      - ADMIN_PASSWORD=supersecureadminpass
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: scanno_frontend_prod
+    restart: always
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NEXT_PUBLIC_CAR_DOCTOR_WEBSITE=https://scanno.qa
+      - NEXT_PUBLIC_CAR_DOCTOR_PHONE=+97466532830
+      - NEXT_PUBLIC_CAR_DOCTOR_BOOKING_URL=https://scanno.qa/booking
+      - NEXT_PUBLIC_CURRENCY_SYMBOL=QAR
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    container_name: scanno_nginx_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  pgdata_prod:
+  redisdata_prod:

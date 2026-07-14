@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+scanno_integrated.db
+scanno_integrated.log
+.env
+.git
+.gitignore

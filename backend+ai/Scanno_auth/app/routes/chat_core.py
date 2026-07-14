@@ -1,3 +1,27 @@
+import base64
+import io
+import logging
+import uuid
+from typing import Any, Dict, List, Optional
+from fastapi import APIRouter, Depends, Form, File, HTTPException, UploadFile
+from openai import AsyncOpenAI
+from PIL import Image
+from pypdf import PdfReader
+from sqlalchemy.orm import Session
+
+from app import crud
+from app.database import get_db
+from app.routes.chat_core_utils import load_chat_history, save_chat_history
+from app.schemas import AnalysisResponse
+
+# Constants
+MAX_IMAGE_SIZE = 2048
+JPEG_QUALITY = 80
+CONTEXT_WINDOW = 50
+MAX_TOKENS_RESPONSE = 2000
+
+router = APIRouter()
+
 SYSTEM_PROMPT = """
 You are SCANNO AI INSPECTOR — the official smart assistant of Scanno Car Inspection Center in Doha, Qatar.
 

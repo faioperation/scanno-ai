@@ -14,7 +14,8 @@ class TimeoutMiddleware(BaseHTTPMiddleware):
                 timeout=self.timeout_seconds
             )
         except asyncio.TimeoutError:
-            return HTTPException(
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
                 status_code=504,
-                detail=f"Request timeout after {self.timeout_seconds}s"
+                content={"detail": f"Request timeout after {self.timeout_seconds}s"}
             )

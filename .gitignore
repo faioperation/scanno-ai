@@ -1,0 +1,30 @@
+# Root-level .gitignore for the Scanno AI Chatbot Platform
+
+# Local environment files — NEVER commit real secrets
+.env
+.env.local
+.env.*.local
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# SQLite development databases
+*.db
+*.sqlite
+
+# Application logs
+*.log
+
+# macOS
+.DS_Store
+
+# Editor directories
+.vscode/
+.idea/
